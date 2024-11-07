@@ -92,19 +92,18 @@ void TrafficLight::cycleThroughPhases()
     std::chrono::high_resolution_clock::time_point t1;
     std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now() ;
 
+    std::random_device rd;
+    std::mt19937 eng(rd());
+    std::uniform_int_distribution<int> dist(4000,6000);
+    double cycle_duration = dist(rd);
+
     while(true){
 
         t1 = std::chrono::high_resolution_clock::now();
 
-        std::this_thread::sleep_for(std::chrono::milliseconds (1));
+        auto time_taken = std::chrono::duration_cast<std::chrono::milliseconds>( t1 - t2 ).count();
 
-        auto time_taken = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
-
-        std::random_device rd;
-        std::uniform_int_distribution<int> dist(4000,6000);
-        double cycle_duration = dist(rd);
-
-        if(cycle_duration > time_taken ){
+        if(cycle_duration <= time_taken ){
 
             if (_currentPhase == TrafficLightPhase::red){
 
@@ -119,10 +118,10 @@ void TrafficLight::cycleThroughPhases()
 
             //send update here
             traffic_queue.send(std::move(_currentPhase));
-
+            t2 = std::chrono::high_resolution_clock::now();
         }
 
-        t2 = std::chrono::high_resolution_clock::now();
+        std::this_thread::sleep_for(std::chrono::milliseconds (1));
 
     }
 }
