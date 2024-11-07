@@ -21,7 +21,8 @@ T MessageQueue<T>::receive()
     _condv.wait(uLock,[this]{return !_queue.empty(); });
 
     T msg = std::move(_queue.back());
-    _queue.pop_back();
+//    _queue.pop_back();
+    _queue.clear();
     return  msg;
 
 }
